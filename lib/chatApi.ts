@@ -31,6 +31,9 @@ export function useSendMessage() {
   const addMessage = useChatStore((state) => state.addMessage);
   const model = useChatStore((state) => state.selectedModel);
   const messages = useChatStore((state) => state.messages);
+  const setError = useChatStore((state) => state.setError);
+  const clearError = useChatStore((state) => state.clearError);
+  const errorMessage = useChatStore((state) => state.errorMessage);
 
   return useMutation({
     mutationFn: (userMessage: string) =>
@@ -40,9 +43,11 @@ export function useSendMessage() {
     },
     onSuccess: (data) => {
       addMessage({ role: 'assistant', content: data.reply.content });
+      clearError();
     },
     onError: (error) => {
       console.error('Chat API error:', error);
+      setError(error.message);
     },
   });
 }
