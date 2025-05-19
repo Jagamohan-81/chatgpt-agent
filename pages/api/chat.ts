@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import OpenAI from 'openai'
-import rateLimit from 'express-rate-limit';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import OpenAI from 'openai';
+import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -10,7 +10,6 @@ const apiLimiter = rateLimit({
     res.status(429).json({ error: 'Too many requests, please try again later.' });
   },
 });
-
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -22,12 +21,12 @@ const defaultSystemPrompt = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+
   await new Promise<void>((resolve, reject) => {
-    apiLimiter(req, res, (result: any) => {
+    apiLimiter(req, res, (result: unknown) => {
       if (result instanceof Error) {
         return reject(result);
       }
@@ -39,31 +38,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(429).json({ error: 'Too many requests, please try again later.' });
     }
   });
-  const { messages, model } = req.body
+
+  const { messages, model } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Invalid messages format' })
+    return res.status(400).json({ error: 'Invalid messages format' });
   }
 
   try {
-    const messagesWithSystem = [defaultSystemPrompt, ...messages]
+    const messagesWithSystem = [defaultSystemPrompt, ...messages];
 
     const completion = await openai.chat.completions.create({
       model: model || 'gpt-4o',
       messages: messagesWithSystem,
-    })
+    });
 
-    const reply = completion.choices[0].message
-    console.log('OpenAI API response:', completion)
+    const reply = completion.choices[0].message;
+    console.log('OpenAI API response:', completion);
+
     return res.status(200).json({
       reply,
       model: model || 'gpt-4o',
-    })
-  } catch (error: any) {
-    console.error('OpenAI API error:', error)
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('OpenAI API error:', errorMessage);
     return res.status(500).json({
       error: 'Something went wrong while generating a response',
-      details: error?.message || null,
-    })
+      details: errorMessage,
+    });
   }
 }
