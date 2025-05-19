@@ -26,19 +26,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
-  // await new Promise<void>((resolve, reject) => {
-  //   apiLimiter(req, res, (result: any) => {
-  //     if (result instanceof Error) {
-  //       return reject(result);
-  //     }
-  //     return resolve();
-  //   });
-  // }).catch(error => {
-  //   console.error('Rate limiter error:', error);
-  //   if (!res.headersSent) {
-  //     return res.status(429).json({ error: 'Too many requests, please try again later.' });
-  //   }
-  // });
+  await new Promise<void>((resolve, reject) => {
+    apiLimiter(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve();
+    });
+  }).catch(error => {
+    console.error('Rate limiter error:', error);
+    if (!res.headersSent) {
+      return res.status(429).json({ error: 'Too many requests, please try again later.' });
+    }
+  });
   const { messages, model } = req.body
 
   if (!messages || !Array.isArray(messages)) {

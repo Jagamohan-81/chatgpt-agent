@@ -33,7 +33,6 @@ export function useSendMessage() {
   const messages = useChatStore((state) => state.messages);
   const setError = useChatStore((state) => state.setError);
   const clearError = useChatStore((state) => state.clearError);
-  const errorMessage = useChatStore((state) => state.errorMessage);
 
   return useMutation({
     mutationFn: (userMessage: string) =>
