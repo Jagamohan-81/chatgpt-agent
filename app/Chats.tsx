@@ -2,13 +2,14 @@
 import { MessageList } from '../components/MessageList';
 import { ChatControls } from '../components/ChatControl';
 import { useChatStore } from '@/lib/store';
-
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 export default function ChatPage() {
   const errorMessage = useChatStore((state) => state.errorMessage);
 
   return (
     <section className="w-full max-w-2xl mx-auto p-4 space-y-4">
-      
+      <Header />
 
       <ChatControls />
       {
@@ -19,6 +20,7 @@ export default function ChatPage() {
         )
       }
       <MessageList />
+      <Footer />
     </section>
   );
 }
