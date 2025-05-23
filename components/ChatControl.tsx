@@ -25,8 +25,6 @@ export function ChatControls() {
           onChange={(e) => setSelectedModel(e.target.value)}
         >
           <option value="gpt-4o">GPT-4o (Recommended)</option>
-                              <option value="code-davinci-002">Codex</option>
-
           <option value="gpt-4-1106-preview">GPT-4.5</option>
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="gpt-4o-mini">GPT-4o Mini</option>
